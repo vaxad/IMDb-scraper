@@ -83,16 +83,15 @@ router.get('/list/:n',async(req,res)=>{
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     const n =req.params.n
-    const url = `https://www.imdb.com/search/title/?groups=top_1000&sort=user_rating,desc&count=100&start=${n}01&ref_=adv_nxt`;
+    const url = `https://www.imdb.com/search/title/?groups=top_1000&sort=user_rating,desc&count=10&start=${(n*10+1)}&ref_=adv_nxt`;
 
     try {
         const { data } = await axios.get(url);
         const $ = cheerio.load(data);
         const listItems = $(".lister-list .lister-item.mode-advanced .lister-item-content");
-        
         const movies = [];
         listItems.each((idx, el) => {
-          const movie = { title: "",desc:"",rank:parseInt(n)*100+(idx+1),year:"",stars:"",genre:[],id:"" };
+          const movie = { title: "",desc:"",rank:parseInt(n)*10+(idx+1),year:"",stars:"",genre:[],id:"" };
           movie.title = $(el).children("h3.lister-item-header").children("a").text().trim();
           movie.desc = $(el).children("p.text-muted").last().text().trim();
           movie.genre = $(el).children("p.text-muted").children("span.genre").text().trim().split(',')
