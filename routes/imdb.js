@@ -92,15 +92,19 @@ router.get('/list/:n',async(req,res)=>{
         
         const movies = [];
         listItems.each((idx, el) => {
-          const movie = { title: "", desc: "", directors:"", img:"",link:"",rank:parseInt(n)*100+(idx+1),year:"" };
+          const movie = { title: "", desc: "", directors:"", img:"",link:"",rank:parseInt(n)*100+(idx+1),year:"",stars:"",genre:[],id:"" };
           movie.title = $(el).children("h3.lister-item-header").children("a").text().trim();
           movie.desc = $(el).children("p.text-muted").last().text().trim();
           movie.directors = $(el).children("p").children("a").first().text().trim();
+          movie.genre = $(el).children("p.text-muted").children("span.genre").text().trim().split(',')
           movie.year = $(el).children("h3.lister-item-header").children("span.lister-item-year").text().replace('(','').replace(')','')
           movie.img = $(el).parent().find('img.loadlate').attr('src');
+          movie.id = $(el).parent().find('img.loadlate').attr('data-tconst');
+          movie.stars =$(el).children("div.ratings-bar").children("div.inline-block.ratings-imdb-rating").attr("data-value")
           movie.link="https://www.imdb.com"+$(el).children("h3.lister-item-header").children("a").attr("href");
-          res.write(`data:${JSON.stringify(movie)}\n\n`)
+          movies.push(movie);
         });
+        res.json({movies:movies})
       } catch (err) {
         console.error(err);
       }
