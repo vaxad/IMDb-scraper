@@ -8,6 +8,10 @@ const server = http.createServer(app);
 
 app.use('/imdb',require('./routes/imdb'))
 
+app.get('/',(req,res)=>{
+    res.send("working")
+})
+
 server.listen(4000, () => {
     console.log('workin')
 })
