@@ -99,9 +99,8 @@ router.get('/list/:n',async(req,res)=>{
           movie.year = $(el).children("h3.lister-item-header").children("span.lister-item-year").text().replace('(','').replace(')','')
           movie.img = $(el).parent().find('img.loadlate').attr('src');
           movie.link="https://www.imdb.com"+$(el).children("h3.lister-item-header").children("a").attr("href");
-          movies.push(movie);
+          res.write(`data:${JSON.stringify(movie)}\n\n`)
         });
-        res.json({movies:movies})
       } catch (err) {
         console.error(err);
       }
