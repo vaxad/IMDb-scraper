@@ -40,26 +40,6 @@ router.get('/', async (req, res) => {
     res.end();
 })
 
-router.get('/test', async (req, res) => {
-    try {
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
-        res.write(': start\n\n');
-        res.write("data\n");
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        res.write("data\n");
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        res.write("data\n");
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        res.write("data\n");
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-    } catch (error) {
-
-    }
-})
-
 router.get('/top1000/:n', async (req, res) => {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -97,6 +77,35 @@ router.get('/top1000/:n', async (req, res) => {
 
 //https://www.imdb.com/search/title/?groups=top_1000&sort=user_rating,desc&count=100&start=101&ref_=adv_nxt
 //https://www.imdb.com/search/title/?groups=top_1000&sort=user_rating,desc&count=100&start=201&ref_=adv_nxt
+
+router.get('/list/:n',async(req,res)=>{
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    const n =req.params.n
+    const url = `https://www.imdb.com/search/title/?groups=top_1000&sort=user_rating,desc&count=100&start=${n}01&ref_=adv_nxt`;
+
+    try {
+        const { data } = await axios.get(url);
+        const $ = cheerio.load(data);
+        const listItems = $(".lister-list .lister-item.mode-advanced .lister-item-content");
+        
+        const movies = [];
+        listItems.each((idx, el) => {
+          const movie = { title: "", desc: "", directors:"", img:"",link:"",rank:parseInt(n)*100+(idx+1),year:"" };
+          movie.title = $(el).children("h3.lister-item-header").children("a").text().trim();
+          movie.desc = $(el).children("p.text-muted").last().text().trim();
+          movie.directors = $(el).children("p").children("a").first().text().trim();
+          movie.year = $(el).children("h3.lister-item-header").children("span.lister-item-year").text().replace('(','').replace(')','')
+          movie.img = $(el).parent().find('img.loadlate').attr('src');
+          movie.link="https://www.imdb.com"+$(el).children("h3.lister-item-header").children("a").attr("href");
+          movies.push(movie);
+        });
+        res.json({movies:movies})
+      } catch (err) {
+        console.error(err);
+      }
+})
 
 
 module.exports = router
