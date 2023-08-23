@@ -211,5 +211,40 @@ router.get('/get/:n',async(req,res)=>{
       }
 })
 
+router.get('/search/:term',async(req,res)=>{
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const term = req.params.term
+
+    try {
+        const m = await Movies.findById(dbId)
+        const movies = m.movies.filter((el)=>{
+            return el.title.toLowerCase().includes(term.toLowerCase())||el.desc.toLowerCase().includes(term.toLowerCase())
+        })
+        
+        res.json({movies:movies})
+      } catch (err) {
+        console.error(err);
+      }
+})
+
+router.get('/rank/:rank',async(req,res)=>{
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const rank = req.params.rank
+
+    try {
+        const m = await Movies.findById(dbId)
+        const movies = m.movies.filter((el)=> {return el.rank===parseFloat(rank)})
+        res.json({movies:movies})
+      } catch (err) {
+        console.error(err);
+      }
+})
+
 
 module.exports = router
