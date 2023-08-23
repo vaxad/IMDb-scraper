@@ -5,6 +5,8 @@ app.use(cors())
 app.use(express.json())
 const http =require('http')
 const server = http.createServer(app);
+const connectDB =require('./db')
+connectDB()
 
 app.use('/imdb',require('./routes/imdb'))
 
